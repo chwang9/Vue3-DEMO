@@ -1,32 +1,62 @@
 <template>
   <div class="login-container">
-    <el-form :model="form" class="login-form">
+    <el-form ref="formRef" :model="form" class="login-form" :rules="rules">
         <div class="title-container">
             <h1 class="title">用户登录</h1>
         </div>
-        <el-form-item>
+        <el-form-item prop="username">
             <svg-icon icon="user" class="svg-container"></svg-icon>
-            <el-input v-model="form.name" />
+            <el-input v-model="form.username" />
         </el-form-item>
-        <el-form-item>
+        <el-form-item prop="password">
             <svg-icon icon="password" class="svg-container"></svg-icon>
-            <el-input v-model="form.password" />
+            <el-input v-model="form.password" show-password/>
         </el-form-item>
-        <el-button type="primary" @click="onSubmit" class="login-button">用户登录</el-button>
+        <el-button type="primary" class="login-button" @click="handleLogin">用户登录</el-button>
     </el-form>
   </div>
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
+import { useStore } from 'vuex'
+const store = useStore()
+// import { login } from '@/api/login'
 // do not use same name with ref
 const form = reactive({
-  name: '',
-  password: ''
+  username: 'admin',
+  password: '123456'
 })
 
-const onSubmit = () => {
-  console.log('submit!')
+const rules = ref({
+  username: [
+    {
+      required: true,
+      message: 'Please input Activity name',
+      trigger: 'blur'
+    }
+  ],
+  password: [
+    {
+      required: true,
+      message: 'Please input Activity password',
+      trigger: 'blur'
+    }
+  ]
+})
+
+const formRef = ref(null)
+const handleLogin = () => {
+  formRef.value.validate(async (valid) => {
+    if (valid) {
+      store.dispatch('app/login', form)
+      // store.dispatch('app/login', form.value)
+    } else {
+      console.log(222)
+      // console.log('error submit!!')
+      return false
+    }
+  })
 }
 </script>
 
@@ -49,7 +79,6 @@ $cursor: #fff;
     padding: 160px 35px 0;
     margin: 0 auto;
     overflow: hidden;
-
     .el-form-item {
       border: 1px solid rgba(255, 255, 255, 0.1);
       background: rgba(0, 0, 0, 0.1);
@@ -74,6 +103,7 @@ $cursor: #fff;
         color: $light_gray;
         height: 47px;
         caret-color: $cursor;
+        width: 440px;
       }
     }
     .login-button {
